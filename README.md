@@ -14,6 +14,8 @@
 - `GET /` —— 前端页面：复制 Base URL / API Key / 模型列表 + 上游管理
 - **前缀命名空间**：每个上游一个前缀，如 `oc/deepseek-v4-flash-free`、`mysrv/gpt-4o`，避免重名
 - 网页可视化添加上游（填名称、前缀、baseUrl、apiKey），JSON 持久化
+- **网页自定义 API Key**：在「接入信息」页点「设置」即可更换对外 API Key（持久化到 `data/settings.json`，旧 Key 立即失效，需携带新 Key 鉴权）
+- **模型连通性测试**：支持单个模型测试、「测试本组」（按上游/前缀分组批量测试）和「全部测试」，结果实时显示在右侧「测试日志」（可一键「清空」）
 
 ## 快速开始（Docker）
 
@@ -93,7 +95,7 @@ npm start
 | --- | --- | --- |
 | `PORT` | `20128` | 监听端口 |
 | `HOSTNAME` | `0.0.0.0` | 绑定地址 |
-| `API_KEY` | `sk_9router` | 对外 API Key（前端展示 / 客户端调用需带） |
+| `API_KEY` | `sk_9router` | 对外 API Key 初始值（前端展示 / 客户端调用需带）。部署后可在网页「接入信息」页点「设置」动态修改并持久化 |
 | `ALLOW_PUBLIC_API` | `false` | 设为 `true` 跳过鉴权（仅内网调试，不建议公网） |
 | `DATA_DIR` | `./data` | 上游配置存储目录 |
 | `MODEL_CACHE_TTL_MS` | `600000` | 模型缓存时长（10 分钟） |
@@ -105,6 +107,7 @@ oc-proxy/
 ├── server.js            # Express 入口：鉴权 + 路由 + 上游管理 API
 ├── lib/
 │   ├── upstreams.js     # 上游管理（内置 opencode + 自定义，JSON 持久化）
+│   ├── settings.js      # 运行时设置管理（网页自定义 API Key 持久化）
 │   ├── models.js        # 多上游模型实时拉取 + 缓存 + 前缀合并
 │   └── proxy.js         # /v1/chat/completions 按前缀路由直通反代
 ├── public/
@@ -120,4 +123,5 @@ oc-proxy/
 - **内置 opencode** 前缀固定为 `oc`，只展示免费模型（id 以 `-free` 结尾或命中白名单如 `big-pickle`）。
 - 自定义上游模型**保留原名**，带前缀调用（如 `mysrv/gpt-4o`），无免费过滤。
 - 模型列表缓存 10 分钟（可配 `MODEL_CACHE_TTL_MS`）。
-- 服务仅做**直通转发**，不记录请求内容，不落盘聊天数据（仅持久化上游配置）。
+- 服务仅做**直通转发**，不记录请求内容，不落盘聊天数据（仅持久化上游配置与运行时设置）。
+- 网页修改 API Key 后，旧 Key 立即失效，新 Key 持久化于 `data/settings.json`（Docker 卷持久化）；若 `settings.json` 不存在则回退到环境变量 `API_KEY` 或默认值。

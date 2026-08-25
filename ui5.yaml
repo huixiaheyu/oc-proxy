@@ -1,0 +1,203 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]: OC
+      - heading "PROXY OpenCode 中转服务" [level=1] [ref=e5]:
+        - text: PROXY
+        - generic [ref=e6]: OpenCode 中转服务
+      - generic [ref=e7]: 服务运行中
+    - generic [ref=e10]:
+      - button "接入信息" [ref=e11] [cursor=pointer]
+      - button "上游管理" [ref=e12] [cursor=pointer]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - generic [ref=e18]: 🔑
+            - text: 接入信息
+          - generic [ref=e19]:
+            - generic [ref=e20]: Base URL（Endpoint）
+            - generic [ref=e21]:
+              - generic [ref=e22]: http://localhost:20128/v1
+              - button "复制" [ref=e23] [cursor=pointer]
+          - generic [ref=e24]:
+            - generic [ref=e25]: API Key
+            - generic [ref=e26]:
+              - generic [ref=e27]: sk_9router
+              - button "复制" [ref=e28] [cursor=pointer]
+              - button "设置" [ref=e29] [cursor=pointer]
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]: 🧠
+            - text: 可用模型
+            - generic [ref=e33]: · 18 个
+            - generic [ref=e34]:
+              - button "刷新" [ref=e35] [cursor=pointer]
+              - button "全部测试" [ref=e36] [cursor=pointer]
+          - generic [ref=e37]:
+            - generic [ref=e320]:
+              - generic [ref=e321]:
+                - generic [ref=e322]: oc
+                - generic [ref=e323]: OpenCode Free
+                - generic [ref=e324]: · 9 个
+                - button "测试本组" [ref=e326] [cursor=pointer]
+              - 'generic "上游: oc" [ref=e327]':
+                - generic [ref=e328] [cursor=pointer]: oc/big-pickle
+                - generic [ref=e329]:
+                  - button "测试" [ref=e330] [cursor=pointer]
+                  - generic [ref=e331] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e332]':
+                - generic [ref=e333] [cursor=pointer]: oc/deepseek-v4-flash-free
+                - generic [ref=e334]:
+                  - button "测试" [ref=e335] [cursor=pointer]
+                  - generic [ref=e336] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e337]':
+                - generic [ref=e338] [cursor=pointer]: oc/x-preview-f-free
+                - generic [ref=e339]:
+                  - button "测试" [ref=e340] [cursor=pointer]
+                  - generic [ref=e341] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e342]':
+                - generic [ref=e343] [cursor=pointer]: oc/muse-spark-1.2-contributor-free
+                - generic [ref=e344]:
+                  - button "测试" [ref=e345] [cursor=pointer]
+                  - generic [ref=e346] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e347]':
+                - generic [ref=e348] [cursor=pointer]: oc/mimo-v2.5-free
+                - generic [ref=e349]:
+                  - button "测试" [ref=e350] [cursor=pointer]
+                  - generic [ref=e351] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e352]':
+                - generic [ref=e353] [cursor=pointer]: oc/hy3-free
+                - generic [ref=e354]:
+                  - button "测试" [ref=e355] [cursor=pointer]
+                  - generic [ref=e356] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e357]':
+                - generic [ref=e358] [cursor=pointer]: oc/nemotron-3-ultra-free
+                - generic [ref=e359]:
+                  - button "测试" [ref=e360] [cursor=pointer]
+                  - generic [ref=e361] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e362]':
+                - generic [ref=e363] [cursor=pointer]: oc/nemotron-3.5-lightning-free
+                - generic [ref=e364]:
+                  - button "测试" [ref=e365] [cursor=pointer]
+                  - generic [ref=e366] [cursor=pointer]: 复制
+              - 'generic "上游: oc" [ref=e367]':
+                - generic [ref=e368] [cursor=pointer]: oc/laguna-s-2.1-free
+                - generic [ref=e369]:
+                  - button "测试" [ref=e370] [cursor=pointer]
+                  - generic [ref=e371] [cursor=pointer]: 复制
+            - generic [ref=e372]:
+              - generic [ref=e373]:
+                - generic [ref=e374]: beijing
+                - generic [ref=e375]: beijing
+                - generic [ref=e376]: · 9 个
+                - button "测试本组" [ref=e378] [cursor=pointer]
+              - 'generic "上游: beijing" [ref=e379]':
+                - generic [ref=e380] [cursor=pointer]: beijing/oc/big-pickle
+                - generic [ref=e381]:
+                  - button "测试" [ref=e382] [cursor=pointer]
+                  - generic [ref=e383] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e384]':
+                - generic [ref=e385] [cursor=pointer]: beijing/oc/deepseek-v4-flash-free
+                - generic [ref=e386]:
+                  - button "测试" [ref=e387] [cursor=pointer]
+                  - generic [ref=e388] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e389]':
+                - generic [ref=e390] [cursor=pointer]: beijing/oc/x-preview-f-free
+                - generic [ref=e391]:
+                  - button "测试" [ref=e392] [cursor=pointer]
+                  - generic [ref=e393] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e394]':
+                - generic [ref=e395] [cursor=pointer]: beijing/oc/muse-spark-1.2-contributor-free
+                - generic [ref=e396]:
+                  - button "测试" [ref=e397] [cursor=pointer]
+                  - generic [ref=e398] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e399]':
+                - generic [ref=e400] [cursor=pointer]: beijing/oc/mimo-v2.5-free
+                - generic [ref=e401]:
+                  - button "测试" [ref=e402] [cursor=pointer]
+                  - generic [ref=e403] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e404]':
+                - generic [ref=e405] [cursor=pointer]: beijing/oc/hy3-free
+                - generic [ref=e406]:
+                  - button "测试" [ref=e407] [cursor=pointer]
+                  - generic [ref=e408] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e409]':
+                - generic [ref=e410] [cursor=pointer]: beijing/oc/nemotron-3-ultra-free
+                - generic [ref=e411]:
+                  - button "测试" [ref=e412] [cursor=pointer]
+                  - generic [ref=e413] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e414]':
+                - generic [ref=e415] [cursor=pointer]: beijing/oc/nemotron-3.5-lightning-free
+                - generic [ref=e416]:
+                  - button "测试" [ref=e417] [cursor=pointer]
+                  - generic [ref=e418] [cursor=pointer]: 复制
+              - 'generic "上游: beijing" [ref=e419]':
+                - generic [ref=e420] [cursor=pointer]: beijing/oc/laguna-s-2.1-free
+                - generic [ref=e421]:
+                  - button "测试" [ref=e422] [cursor=pointer]
+                  - generic [ref=e423] [cursor=pointer]: 复制
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]:
+            - generic [ref=e145]: 📘
+            - text: 使用方式
+          - generic [ref=e146]: "模型格式：前缀/模型名（前缀 = 上游前缀，如 oc、mysrv） POST {baseUrl}/v1/chat/completions Authorization: Bearer <API_KEY> { \"model\": \"oc/deepseek-v4-flash-free\", \"messages\": [...], \"stream\": true } # 查看可用模型（实时更新） GET {baseUrl}/v1/models"
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e150]: 🛠
+            - text: 测试日志
+            - button "清空" [ref=e152] [cursor=pointer]
+          - generic [ref=e153]:
+            - generic [ref=e165]:
+              - generic [ref=e166]:
+                - generic: oc/deepseek-v4-flash-free
+                - generic [ref=e167]: "✗ {\"error\":{\"type\":\"server_error\",\"message\":\"Error from provider (Console): Upstream request failed: Model is unavailable.\"}}"
+              - generic [ref=e168]: "15:50:23 · {\"error\":{\"type\":\"server_error\",\"message\":\"Error from provider (Console): Upstream request failed: Model is unavailable."
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - generic: oc/x-preview-f-free
+                - generic [ref=e171]: "✗ {\"error\":{\"type\":\"server_error\",\"message\":\"Error from provider (Console): Upstream request failed: Endpoint is unavailable.\"}}"
+              - generic [ref=e172]: "15:50:24 · {\"error\":{\"type\":\"server_error\",\"message\":\"Error from provider (Console): Upstream request failed: Endpoint is unavailab"
+            - generic [ref=e173]:
+              - generic [ref=e174]:
+                - generic: oc/muse-spark-1.2-contributor-free
+                - generic [ref=e175]: "✗ {\"type\":\"error\",\"error\":{\"type\":\"error\",\"message\":\"Internal server error\"}}"
+              - generic [ref=e176]: "15:50:24 · {\"type\":\"error\",\"error\":{\"type\":\"error\",\"message\":\"Internal server error\"}}"
+            - generic [ref=e282]:
+              - generic [ref=e283]:
+                - generic [ref=e284]: oc/hy3-free
+                - generic [ref=e285]: ✓ 2543ms
+              - generic [ref=e286]: 15:50:26 · pong
+            - generic [ref=e287]:
+              - generic [ref=e288]:
+                - generic [ref=e289]: oc/mimo-v2.5-free
+                - generic [ref=e290]: ✓ 5074ms
+              - generic [ref=e291]: 15:50:29 · pong
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - generic [ref=e294]: oc/nemotron-3.5-lightning-free
+                - generic [ref=e295]: ✓ 3151ms
+              - generic [ref=e296]: 15:50:32 · pong
+            - generic [ref=e297]:
+              - generic [ref=e298]:
+                - generic: oc/laguna-s-2.1-free
+                - generic [ref=e299]: "✗ {\"error\":{\"type\":\"server_error\",\"message\":\"Error from provider (Console): Upstream request failed: Endpoint is unavailable.\"}}"
+              - generic [ref=e300]: "15:50:32 · {\"error\":{\"type\":\"server_error\",\"message\":\"Error from provider (Console): Upstream request failed: Endpoint is unavailab"
+            - generic [ref=e301]:
+              - generic [ref=e302]:
+                - generic [ref=e303]: oc/big-pickle
+                - generic [ref=e304]: ✓ 17601ms
+              - generic [ref=e305]: 15:50:35 · pong
+            - generic [ref=e315]:
+              - generic [ref=e316]:
+                - generic [ref=e317]: oc/nemotron-3-ultra-free
+                - generic [ref=e318]: ✓ 22655ms
+              - generic [ref=e319]: 15:50:49 · pong
+  - generic [ref=e307]:
+    - heading "自定义 API Key" [level=3] [ref=e308]
+    - paragraph [ref=e309]: 修改后立即生效，客户端调用 /v1/* 需使用新 Key（旧 Key 立即失效）。
+    - textbox "输入新的 API Key" [active] [ref=e310]: sk_9router
+    - generic [ref=e311]:
+      - button "取消" [ref=e312] [cursor=pointer]
+      - button "保存" [ref=e313] [cursor=pointer]

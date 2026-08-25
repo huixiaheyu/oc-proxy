@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { registerModelsRoutes } from "./lib/models.js";
 import { registerChatRoutes } from "./lib/proxy.js";
 import { listCustomUpstreams, addUpstream, removeUpstream } from "./lib/upstreams.js";
+import { getApiKey, setApiKey } from "./lib/settings.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,7 +17,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // DATA_DIR          上游配置存储目录，默认 <项目>/data
 const PORT = Number(process.env.PORT || 20128);
 const HOSTNAME = process.env.HOSTNAME || "0.0.0.0";
-const API_KEY = process.env.API_KEY || "sk_9router";
 const ALLOW_PUBLIC_API = process.env.ALLOW_PUBLIC_API === "true";
 
 const app = express();
@@ -33,9 +33,26 @@ app.get("/health", (_req, res) => {
 // 前端页面需要知道 apiKey / baseUrl 以便展示复制
 app.get("/api/meta", (req, res) => {
   res.json({
-    apiKey: API_KEY,
+    apiKey: getApiKey(),
+    canSetApiKey: true,
     baseUrl: `${req.protocol}://${req.get("host")}`,
   });
+});
+
+// 网页自定义 API Key（需携带当前 key 鉴权，防止被他人篡改）
+app.post("/api/settings/api-key", (req, res) => {
+  const auth = req.headers.authorization || "";
+  const token = auth.replace(/^Bearer\s+/i, "");
+  if (token !== getApiKey()) {
+    return res.status(401).json({ error: "Invalid API key" });
+  }
+  try {
+    const { apiKey } = req.body || {};
+    const clean = setApiKey(apiKey);
+    res.json({ success: true, apiKey: clean });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // API Key 校验（/v1/* 保护）
@@ -43,7 +60,7 @@ function requireAuth(req, res, next) {
   if (ALLOW_PUBLIC_API) return next();
   const auth = req.headers.authorization || "";
   const token = auth.replace(/^Bearer\s+/i, "");
-  if (token !== API_KEY) {
+  if (token !== getApiKey()) {
     return res.status(401).json({
       error: { message: "Invalid API key. Use Authorization: Bearer <API_KEY>", type: "invalid_request_error" },
     });
@@ -83,7 +100,7 @@ registerChatRoutes(app);
 
 app.listen(PORT, HOSTNAME, () => {
   console.log(`[oc-proxy] listening on http://${HOSTNAME}:${PORT}`);
-  console.log(`[oc-proxy] API Key: ${API_KEY}`);
+  console.log(`[oc-proxy] API Key: ${getApiKey()}`);
   console.log(`[oc-proxy] Models:  GET /v1/models | Chat: POST /v1/chat/completions`);
   console.log(`[oc-proxy] Upstreams: GET/POST /api/upstreams | DELETE /api/upstreams/:id`);
 });
