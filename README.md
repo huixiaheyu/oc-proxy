@@ -98,37 +98,6 @@ curl http://<服务器IP>:20128/v1/models -H "Authorization: Bearer sk_你的key
 - `PUT /api/upstreams/:id` —— 更新上游（部分字段可省略）
 - `DELETE /api/upstreams/:id` —— 删除上游
 
-## 部署到 Vercel（实验性）
-
-> ⚠️ **注意**：本项目是**长驻中转服务**且依赖本地文件持久化，Vercel 的 serverless 平台为**无状态、临时文件系统**。因此部署到 Vercel 后：
-> - ✅ 内置 **OpenCode Free** 上游和基础 `/v1/chat/completions`、`/v1/models` 代理功能可用
-> - ⚠️ **网页添加的自定义上游、自定义 API Key 无法持久化**（serverless 冷启动后文件重置），添加后会在函数冷启动时丢失
->
-> 若需要**稳定的上游管理 + 自定义 API Key**，请优先使用 [Docker 部署](#快速开始docker)。
-
-**一键部署（方式一：网页 Deploy Button）**
-
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/huixiaheyu/oc-proxy)
-
-**命令行部署（方式二）：**
-
-```bash
-cd oc-proxy
-npm i -g vercel   # 若未安装
-
-vercel             # 首次登录并关联项目，按提示选择默认配置
-vercel --prod      # 部署到生产
-```
-
-部署前建议在 Vercel 项目 **Environment Variables** 中设置：
-
-| 变量 | 建议值 | 说明 |
-| --- | --- | --- |
-| `API_KEY` | 强密码 | 对外 API Key |
-| `MODEL_CACHE_TTL_MS` | `600000` | 模型缓存时长（10 分钟） |
-
-> 本项目已内置 `vercel.json` 并适配 serverless（`server.js` 检测到 `VERCEL=1` 时自动导出 app）。若无需上游持久化，也可直接使用内置 opencode 免费模型。
-
 ## 本机直接运行（无 Docker）
 
 ```bash
@@ -166,7 +135,6 @@ oc-proxy/
 ├── data/                # 上游配置持久化目录
 ├── Dockerfile
 ├── docker-compose.yml
-├── vercel.json          # Vercel serverless 适配配置
 └── package.json
 ```
 

@@ -110,15 +110,9 @@ app.delete("/api/upstreams/:id", (req, res) => {
 registerModelsRoutes(app);
 registerChatRoutes(app);
 
-// 顶层导出 app 供 Vercel serverless 调用（本地 node server.js 直接运行时，此导出无副作用）
-export default app;
-
-// 本地/服务器长驻模式：非 Vercel 环境才启动端口监听
-if (process.env.VERCEL !== "1") {
-  app.listen(PORT, HOSTNAME, () => {
-    console.log(`[oc-proxy] listening on http://${HOSTNAME}:${PORT}`);
-    console.log(`[oc-proxy] API Key: ${getApiKey()}`);
-    console.log(`[oc-proxy] Models:  GET /v1/models | Chat: POST /v1/chat/completions`);
-    console.log(`[oc-proxy] Upstreams: GET/POST /api/upstreams | DELETE /api/upstreams/:id`);
-  });
-}
+app.listen(PORT, HOSTNAME, () => {
+  console.log(`[oc-proxy] listening on http://${HOSTNAME}:${PORT}`);
+  console.log(`[oc-proxy] API Key: ${getApiKey()}`);
+  console.log(`[oc-proxy] Models:  GET /v1/models | Chat: POST /v1/chat/completions`);
+  console.log(`[oc-proxy] Upstreams: GET/POST /api/upstreams | DELETE /api/upstreams/:id`);
+});
