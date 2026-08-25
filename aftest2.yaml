@@ -1,8 +1,8 @@
 - generic [ref=e2]:
   - banner [ref=e3]:
-    - heading "OC OpenCode Proxy" [level=1] [ref=e4]:
+    - heading "OC-PROXY" [level=1] [ref=e4]:
       - generic [ref=e5]: OC
-      - text: OpenCode Proxy
+      - text: -PROXY
     - paragraph [ref=e6]: OpenCode Free 上游直通 + 自定义 OpenAI 兼容中转 · 免鉴权 · 实时模型列表
   - generic [ref=e7]:
     - generic [ref=e8] [cursor=pointer]: 接入信息

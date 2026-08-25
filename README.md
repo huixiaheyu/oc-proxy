@@ -1,4 +1,4 @@
-# OpenCode Proxy
+# OC-PROXY
 
 精简的 **AI 上游中转服务**。支持两种上游：
 
@@ -20,7 +20,7 @@
 ### 1. 部署到服务器
 
 ```bash
-cd opencode-proxy
+cd oc-proxy
 
 # 先修改 docker-compose.yml 里的 API_KEY 为强密码
 vim docker-compose.yml
@@ -81,7 +81,7 @@ curl http://<服务器IP>:20128/v1/models -H "Authorization: Bearer sk_你的key
 ## 本机直接运行（无 Docker）
 
 ```bash
-cd opencode-proxy
+cd oc-proxy
 npm install
 npm start
 # 默认 http://localhost:20128
@@ -101,7 +101,7 @@ npm start
 ## 目录结构
 
 ```
-opencode-proxy/
+oc-proxy/
 ├── server.js            # Express 入口：鉴权 + 路由 + 上游管理 API
 ├── lib/
 │   ├── upstreams.js     # 上游管理（内置 opencode + 自定义，JSON 持久化）

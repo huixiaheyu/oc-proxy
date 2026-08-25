@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // 服务状态
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "opencode-proxy", time: Date.now() });
+  res.json({ ok: true, service: "oc-proxy", time: Date.now() });
 });
 
 // 前端页面需要知道 apiKey / baseUrl 以便展示复制
@@ -82,8 +82,8 @@ registerModelsRoutes(app);
 registerChatRoutes(app);
 
 app.listen(PORT, HOSTNAME, () => {
-  console.log(`[opencode-proxy] listening on http://${HOSTNAME}:${PORT}`);
-  console.log(`[opencode-proxy] API Key: ${API_KEY}`);
-  console.log(`[opencode-proxy] Models:  GET /v1/models | Chat: POST /v1/chat/completions`);
-  console.log(`[opencode-proxy] Upstreams: GET/POST /api/upstreams | DELETE /api/upstreams/:id`);
+  console.log(`[oc-proxy] listening on http://${HOSTNAME}:${PORT}`);
+  console.log(`[oc-proxy] API Key: ${API_KEY}`);
+  console.log(`[oc-proxy] Models:  GET /v1/models | Chat: POST /v1/chat/completions`);
+  console.log(`[oc-proxy] Upstreams: GET/POST /api/upstreams | DELETE /api/upstreams/:id`);
 });

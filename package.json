@@ -1,5 +1,5 @@
 {
-  "name": "opencode-proxy",
+  "name": "oc-proxy",
   "version": "1.0.0",
   "description": "精简版 OpenCode Free 上游直通反代服务：提供 OpenAI 兼容接口 /v1/chat/completions 与 /v1/models，实时拉取免费模型列表，附带前端复制 API Key 页面。",
   "type": "module",

@@ -1,4 +1,4 @@
-# OpenCode Proxy：OpenCode Free 上游直通 + 自定义 OpenAI 兼容中转
+# OC-PROXY：OpenCode Free 上游直通 + 自定义 OpenAI 兼容中转
 FROM node:22-alpine
 
 WORKDIR /app

@@ -1,7 +1,7 @@
 services:
-  opencode-proxy:
+  oc-proxy:
     build: .
-    container_name: opencode-proxy
+    container_name: oc-proxy
     restart: unless-stopped
     ports:
       # 宿主机端口:容器端口，按需改左侧
