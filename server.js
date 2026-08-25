@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { registerModelsRoutes } from "./lib/models.js";
 import { registerChatRoutes } from "./lib/proxy.js";
-import { listCustomUpstreams, addUpstream, removeUpstream } from "./lib/upstreams.js";
+import { listCustomUpstreams, addUpstream, updateUpstream, removeUpstream } from "./lib/upstreams.js";
 import { getApiKey, setApiKey } from "./lib/settings.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -84,6 +84,18 @@ app.post("/api/upstreams", (req, res) => {
     res.json({ success: true, upstream });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+// 更新自定义上游
+app.put("/api/upstreams/:id", (req, res) => {
+  try {
+    const { name, prefix, baseUrl, apiKey, modelsUrl } = req.body || {};
+    const upstream = updateUpstream(req.params.id, { name, prefix, baseUrl, apiKey, modelsUrl });
+    res.json({ success: true, upstream });
+  } catch (err) {
+    const status = err.message === "上游不存在" ? 404 : 400;
+    res.status(status).json({ error: err.message });
   }
 });
 

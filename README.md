@@ -13,9 +13,10 @@
 - `GET /v1/models` —— 实时拉取 + 缓存的所有上游模型
 - `GET /` —— 前端页面：复制 Base URL / API Key / 模型列表 + 上游管理
 - **前缀命名空间**：每个上游一个前缀，如 `oc/deepseek-v4-flash-free`、`mysrv/gpt-4o`，避免重名
-- 网页可视化添加上游（填名称、前缀、baseUrl、apiKey），JSON 持久化
+- 网页可视化添加上游（填名称、前缀、baseUrl、apiKey），JSON 持久化，支持编辑与删除
 - **网页自定义 API Key**：在「接入信息」页点「设置」即可更换对外 API Key（持久化到 `data/settings.json`，旧 Key 立即失效，需携带新 Key 鉴权）
-- **模型连通性测试**：支持单个模型测试、「测试本组」（按上游/前缀分组批量测试）和「全部测试」，结果实时显示在右侧「测试日志」（可一键「清空」）
+- **模型连通性测试**：支持单个模型测试、「测试本组」（按上游/前缀分组批量测试）和「全部测试」；测试结果徽章直接显示在每行模型右侧（失败时 hover 叉号可查看详情）
+- **按速度排序**：可用模型按组折叠展示，组内已测试模型按延迟升序排列（最快在上），组头显示该组最低延迟
 
 ## 快速开始（Docker）
 
@@ -78,7 +79,18 @@ curl http://<服务器IP>:20128/v1/models -H "Authorization: Bearer sk_你的key
 
 添加后，模型列表会多出 `mysrv/...` 前缀的模型，调用方式：`mysrv/gpt-4o`。
 
+在**上游管理**列表中可对每个自定义上游执行：
+- **查看模型**：展开查看该上游的模型列表
+- **编辑**：修改名称、前缀、Base URL、API Key（改前缀后需用新的「前缀/模型名」调用）
+- **删除**：移除该上游
+
 自定义上游配置存于 `data/upstreams.json`（Docker 卷持久化）。
+
+对应的 API：
+- `GET /api/upstreams` —— 列出所有自定义上游
+- `POST /api/upstreams` —— 新增上游
+- `PUT /api/upstreams/:id` —— 更新上游（部分字段可省略）
+- `DELETE /api/upstreams/:id` —— 删除上游
 
 ## 本机直接运行（无 Docker）
 

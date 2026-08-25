@@ -91,37 +91,44 @@
     .usage pre { font-size: 12px; line-height: 1.75; font-family: var(--mono); color: #c6cede; white-space: pre-wrap; word-break: break-all; }
     .usage .hl { color: var(--accent); font-weight: 600; }
 
-    /* ===== 测试日志 ===== */
-    .test-log { height: 560px; overflow: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
-    .log-placeholder { color: var(--muted); font-size: 12.5px; padding: 40px 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .log-placeholder .ph-ico { font-size: 26px; opacity: .5; }
-    .log-item { font-size: 12px; font-family: var(--mono); padding: 9px 8px; border-bottom: 1px solid var(--border-soft); line-height: 1.5; animation: fadeIn .2s ease; }
-    .log-item:last-child { border-bottom: none; }
-    .log-item .log-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-    .log-item .log-model { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
-    .log-item .log-time { color: var(--muted); font-size: 11px; flex-shrink: 0; }
-    .log-item .log-status { font-size: 11.5px; flex-shrink: 0; padding: 1px 7px; border-radius: 999px; }
-    .log-item .log-status.ok { color: var(--ok); background: rgba(63,185,80,.12); }
-    .log-item .log-status.err { color: var(--danger); background: rgba(229,72,77,.12); }
-    .log-item .log-status.run { color: var(--accent2); background: rgba(79,140,255,.12); }
-    .log-item .log-reply { color: var(--muted); font-size: 11px; margin-top: 4px; word-break: break-all; }
+    /* ===== 测试结果 tooltip ===== */
+    .result-tip { position: fixed; z-index: 300; max-width: 420px; background: rgba(24,31,45,.98); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; font-size: 12px; line-height: 1.6; color: var(--text); box-shadow: 0 8px 24px rgba(0,0,0,.45); pointer-events: none; opacity: 0; transition: opacity .12s; word-break: break-all; }
+    .result-tip .tip-title { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .result-tip .tip-title .x { color: var(--danger); }
+    .result-tip .tip-body { color: var(--muted); white-space: pre-wrap; }
 
-    /* ===== 模型列表 ===== */
-    .models { max-height: 460px; overflow: auto; display: flex; flex-direction: column; gap: 14px; }
-    .model-group .group-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 0 2px; }
-    .model-group .group-tag { background: linear-gradient(135deg, var(--accent2), #3a6fd8); color: #fff; border-radius: 6px; padding: 2px 9px; font-size: 11px; font-family: var(--mono); font-weight: 700; }
+    /* ===== 模型列表（折叠面板分组） ===== */
+    .models { display: flex; flex-direction: column; gap: 12px; }
+
+    /* 折叠面板组 */
+    .model-group { background: var(--card-2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color .15s; }
+    .model-group:hover { border-color: var(--accent2); }
+    .model-group .group-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; }
+    .model-group .group-head:hover { background: rgba(79,140,255,.04); }
+    .model-group .group-arrow { font-size: 11px; color: var(--muted); transition: transform .2s ease; flex-shrink: 0; }
+    .model-group.collapsed .group-arrow { transform: rotate(-90deg); }
+    .model-group .group-tag { background: linear-gradient(135deg, var(--accent2), #3a6fd8); color: #fff; border-radius: 7px; padding: 3px 11px; font-size: 12px; font-family: var(--mono); font-weight: 700; flex-shrink: 0; }
     .model-group .group-tag.builtin { background: linear-gradient(135deg, var(--accent), #e85d40); }
-    .model-group .group-name { font-size: 13px; font-weight: 600; }
-    .model-group .group-count { font-size: 11px; color: var(--muted); }
-    .model-group .group-ops { margin-left: auto; display: flex; gap: 6px; }
+    .model-group .group-name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .model-group .group-count { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+    .model-group .group-ops { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .model-group .group-body { padding: 6px 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; }
+    .model-group.collapsed .group-body { display: none; }
+    .model-group .group-minlat { font-size: 11px; color: var(--ok); background: rgba(63,185,80,.1); padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-weight: 600; }
 
-    .model { background: var(--card-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; font-size: 12px; font-family: var(--mono); display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 6px; transition: border-color .15s; }
-    .model:hover { border-color: var(--accent2); }
-    .model .id { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; color: var(--text); }
+    /* 模型项卡片 */
+    .model { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; font-family: var(--mono); display: flex; align-items: center; gap: 10px; transition: border-color .15s, background .15s; }
+    .model:hover { border-color: var(--accent2); background: rgba(79,140,255,.03); }
+    .model .id { flex: 1; min-width: 0; cursor: pointer; color: var(--text); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .model .id .pfx { color: var(--muted); }
     .model .id:hover { color: var(--accent2); }
-    .model .actions { display: flex; gap: 7px; align-items: center; }
-    .model .copy { cursor: pointer; color: var(--muted); font-size: 12px; padding: 2px 6px; border-radius: 5px; transition: all .15s; }
+    .model .actions { display: flex; gap: 7px; align-items: center; flex-shrink: 0; }
+    .model .copy { cursor: pointer; color: var(--muted); font-size: 12px; padding: 3px 7px; border-radius: 6px; transition: all .15s; }
     .model .copy:hover { color: var(--accent2); background: rgba(79,140,255,.1); }
+    .model .result { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+    .model .result.ok { color: var(--ok); background: rgba(63,185,80,.12); }
+    .model .result.err { color: var(--danger); background: rgba(229,72,77,.12); }
+    @media (max-width: 720px) { .model-group .group-body { grid-template-columns: 1fr; } }
 
     .summary { font-size: 12.5px; margin: 0 0 12px; padding: 8px 12px; border-radius: 8px; display: none; }
     .summary.err { color: var(--danger); background: rgba(229,72,77,.1); }
@@ -152,6 +159,11 @@
     @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
     input[type="text"], input[type="password"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 11px 13px; font-size: 13px; color: var(--text); transition: border-color .15s; font-family: var(--font); }
     input:focus { outline: none; border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(79,140,255,.12); }
+    /* 密码可见性切换 */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 40px; }
+    .pw-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; opacity: .55; padding: 4px; border-radius: 5px; line-height: 1; transition: opacity .15s; }
+    .pw-eye:hover { opacity: 1; background: rgba(255,255,255,.06); }
     .hint { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
     .hint code { background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 4px; font-family: var(--mono); }
 
@@ -195,13 +207,13 @@
 
     <div class="tabs">
       <button class="tab active" data-panel="usage">接入信息</button>
+      <button class="tab" data-panel="models">可用模型</button>
       <button class="tab" data-panel="upstreams">上游管理</button>
     </div>
 
     <!-- 接入信息 -->
     <div class="panel active" id="panel-usage">
       <div class="grid">
-        <!-- 左列 -->
         <div>
           <div class="card">
             <div class="card-title">
@@ -223,22 +235,8 @@
               </div>
             </div>
           </div>
-
-          <div class="card">
-            <div class="card-title">
-              <span class="ico">🧠</span> 可用模型
-              <span class="badge" id="modelCount"></span>
-              <span class="ops">
-                <button class="btn gray sm" onclick="refreshModels()">刷新</button>
-                <button class="btn sm" id="btnTestAll" onclick="testAllModels()">全部测试</button>
-              </span>
-            </div>
-            <div class="summary" id="testAllSummary"></div>
-            <div class="models" id="models"><div class="empty"><div class="big">加载中…</div></div></div>
-          </div>
         </div>
 
-        <!-- 右列 -->
         <div>
           <div class="card">
             <div class="card-title">
@@ -256,23 +254,23 @@ Authorization: Bearer &lt;API_KEY&gt;
 GET <span class="hl">{baseUrl}/v1/models</span></pre>
             </div>
           </div>
-
-          <div class="card">
-            <div class="card-title">
-              <span class="ico">🛠</span> 测试日志
-              <span class="ops">
-                <button class="btn gray sm" onclick="clearTestLog()">清空</button>
-              </span>
-            </div>
-            <div class="test-log" id="testLog">
-              <div class="log-placeholder">
-                <span class="ph-ico">🪄</span>
-                <span>暂无测试记录</span>
-                <span>点击模型旁的「测试」、「测试本组」或「全部测试」开始</span>
-              </div>
-            </div>
-          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 可用模型 -->
+    <div class="panel" id="panel-models">
+      <div class="card">
+        <div class="card-title">
+          <span class="ico">🧠</span> 可用模型
+          <span class="badge" id="modelCount"></span>
+          <span class="ops">
+            <button class="btn gray sm" onclick="refreshModels()">刷新</button>
+            <button class="btn sm" id="btnTestAll" onclick="testAllModels()">全部测试</button>
+          </span>
+        </div>
+        <div class="summary" id="testAllSummary"></div>
+        <div class="models" id="models"><div class="empty"><div class="big">加载中…</div></div></div>
       </div>
     </div>
 
@@ -328,6 +326,41 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
     </div>
   </div>
 
+  <!-- 编辑上游弹窗 -->
+  <div class="modal-mask" id="editUpstreamModal" style="display:none;">
+    <div class="modal">
+      <h3>编辑上游</h3>
+      <p class="hint">修改后立即生效，调用模型的前缀若变更，需用新的「前缀/模型名」。</p>
+      <input type="hidden" id="edit-id" />
+      <div class="form-grid" style="margin-top:8px;">
+        <div class="field">
+          <label>名称</label>
+          <input type="text" id="edit-name" placeholder="如：我的中转站" />
+        </div>
+        <div class="field">
+          <label>前缀（命名空间，唯一）</label>
+          <input type="text" id="edit-prefix" placeholder="如：mysrv" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Base URL</label>
+        <input type="text" id="edit-baseurl" placeholder="https://api.xxx.com/v1" />
+      </div>
+      <div class="field">
+        <label>API Key</label>
+        <div class="pw-wrap">
+          <input type="password" id="edit-apikey" placeholder="sk-xxx" autocomplete="off" />
+          <button type="button" class="pw-eye" id="edit-apikey-eye" onclick="togglePw('edit-apikey', 'edit-apikey-eye')" title="显示/隐藏" aria-label="显示/隐藏">👁</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn gray" onclick="closeEditUpstreamModal()">取消</button>
+        <button class="btn" onclick="saveUpstream()">保存</button>
+      </div>
+      <div class="msg" id="edit-msg"></div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -343,6 +376,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
         tab.classList.add("active");
         document.getElementById("panel-" + tab.dataset.panel).classList.add("active");
         if (tab.dataset.panel === "upstreams") loadUpstreams();
+        if (tab.dataset.panel === "models" && !ALL_MODELS.length) loadModels();
       });
     });
 
@@ -427,18 +461,72 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
     // 手动刷新模型列表
     function refreshModels() { loadModels(); }
 
-    // 已存在的测试状态缓存：key=模型id → { running }
+    // 已存在的测试状态缓存：key=模型id → { running, result }
     const TEST_RESULTS = {};
 
-    // 在重建 DOM 前保存当前测试状态（防止轮询刷新清掉按钮 loading 态）
+    // 在重建 DOM 前保存当前测试状态（防止轮询刷新清掉按钮 loading 态和行内结果）
     function snapshotTestResults() {
       document.querySelectorAll("#models .model").forEach((row) => {
         const idEl = row.querySelector(".id");
         if (!idEl) return;
         const modelId = idEl.textContent;
         const btn = document.getElementById("btn-" + cssEscape(modelId));
-        TEST_RESULTS[modelId] = { running: !!btn && btn.disabled };
+        const rsEl = row.querySelector(".result");
+        const prev = TEST_RESULTS[modelId] || {};
+        TEST_RESULTS[modelId] = {
+          running: (btn && btn.disabled) || prev.running,
+          result: rsEl && rsEl.dataset.result ? JSON.parse(rsEl.dataset.result) : (prev.result || null),
+        };
       });
+    }
+
+    // 渲染某个模型行的测试结果徽章
+    function resultBadge(result) {
+      if (!result) return "";
+      const ok = result.ok;
+      const cls = ok ? "ok" : "err";
+      const text = ok ? "✓ " + result.latency + "ms" : "✗";
+      if (ok) {
+        return `<span class="result ${cls}" data-result='${JSON.stringify(result).replace(/'/g, "&#39;")}' title="${(result.reply || "成功").replace(/"/g, "&quot;")}">${text}</span>`;
+      }
+      // 失败叉号：hover 触发详情 tooltip
+      const data = JSON.stringify(result).replace(/'/g, "&#39;");
+      return `<span class="result ${cls} has-tip" data-result='${data}' onmouseenter="showResultTip(this)" onmousemove="moveResultTip(event)" onmouseleave="hideResultTip()">${text}</span>`;
+    }
+
+    // 失败详情 tooltip
+    function resultTipEl() {
+      let el = document.getElementById("resultTip");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "resultTip";
+        el.className = "result-tip";
+        document.body.appendChild(el);
+      }
+      return el;
+    }
+    function showResultTip(el) {
+      const data = el.dataset.result;
+      if (!data) return;
+      let result;
+      try { result = JSON.parse(data); } catch { return; }
+      const tip = resultTipEl();
+      const reply = (result.reply || "").trim() || "未知错误";
+      tip.innerHTML = `<div class="tip-title"><span class="x">✗</span> 测试失败</div><div class="tip-body">${reply}</div>`;
+      tip.style.opacity = "1";
+    }
+    function moveResultTip(e) {
+      const tip = resultTipEl();
+      const pad = 12;
+      let x = e.clientX + pad, y = e.clientY + pad;
+      const tipW = tip.offsetWidth, tipH = tip.offsetHeight;
+      if (x + tipW > window.innerWidth) x = e.clientX - tipW - pad;
+      if (y + tipH > window.innerHeight) y = e.clientY - tipH - pad;
+      tip.style.left = x + "px";
+      tip.style.top = y + "px";
+    }
+    function hideResultTip() {
+      resultTipEl().style.opacity = "0";
     }
 
     async function loadModels() {
@@ -465,34 +553,61 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
           groups[p].push(m);
         });
 
-        box.innerHTML = Object.keys(groups).map(prefix => {
+        box.innerHTML = Object.keys(groups).map((prefix, gi) => {
           const info = prefixInfo[prefix] || {};
           const gname = info.name || prefix;
           const gbuiltin = !!info.builtin;
-          const items = groups[prefix].map(m => {
+          // 组内按测试延迟排序：有成功结果的按延迟升序在前，失败的次之，未测试的排最后
+          const sortedModels = [...groups[prefix]].sort((a, b) => {
+            const ra = TEST_RESULTS[a.id]?.result;
+            const rb = TEST_RESULTS[b.id]?.result;
+            return (rb ? (rb.ok ? 0 : 1) : 2) - (ra ? (ra.ok ? 0 : 1) : 2) || (ra && ra.ok ? ra.latency : Infinity) - (rb && rb.ok ? rb.latency : Infinity);
+          });
+          const items = sortedModels.map(m => {
             const saved = TEST_RESULTS[m.id];
             const btnLabel = saved && saved.running ? '<span class="spinner"></span>' : "测试";
             const btnDisabled = saved && saved.running ? "disabled" : "";
+            const badge = (saved && saved.result) ? resultBadge(saved.result) : "";
+            // 拆分前缀与模型名：前缀灰色显示，模型名高亮
+            const slash = m.id.indexOf("/");
+            const pfxPart = slash > -1 ? m.id.slice(0, slash + 1) : "";
+            const namePart = slash > -1 ? m.id.slice(slash + 1) : m.id;
             return `
               <div class="model" title="上游: ${prefix}">
-                <span class="id" onclick="copyStr('${m.id.replace(/'/g, "\\'")}','模型名')">${m.id}</span>
+                <span class="id" onclick="copyStr('${m.id.replace(/'/g, "\\'")}','模型名')"><span class="pfx">${pfxPart}</span>${namePart}</span>
                 <span class="actions">
+                  ${badge}
                   <button class="btn test" id="btn-${cssEscape(m.id)}" onclick="testModel('${m.id.replace(/'/g, "\\'")}')" ${btnDisabled}>${btnLabel}</button>
                   <span class="copy" onclick="copyStr('${m.id.replace(/'/g, "\\'")}','模型名')">复制</span>
                 </span>
               </div>`;
           }).join("");
+          // 该组最低延迟（仅统计成功结果）
+          const okLatencies = sortedModels
+            .map(m => TEST_RESULTS[m.id]?.result)
+            .filter(r => r && r.ok)
+            .map(r => r.latency);
+          const minLat = okLatencies.length ? Math.min(...okLatencies) : null;
+          const minLatHtml = minLat != null
+            ? `<span class="group-minlat" title="该组最低延迟">⚡ ${minLat}ms</span>`
+            : "";
+          // 默认展开第一个分组
+          const collapsedCls = gi === 0 ? "" : "collapsed";
           return `
-            <div class="model-group" data-prefix="${prefix}">
-              <div class="group-head">
+            <div class="model-group ${collapsedCls}" data-prefix="${prefix}">
+              <div class="group-head" onclick="toggleGroup('${prefix.replace(/'/g, "\\'")}', this)">
+                <span class="group-arrow">▼</span>
                 <span class="group-tag ${gbuiltin ? "builtin" : ""}">${prefix}</span>
                 <span class="group-name">${gname}</span>
                 <span class="group-count">· ${groups[prefix].length} 个</span>
-                <span class="group-ops">
+                <span class="group-ops" onclick="event.stopPropagation()">
+                  ${minLatHtml}
                   <button class="btn gray sm" onclick="testGroup('${prefix.replace(/'/g, "\\'")}', this)">测试本组</button>
                 </span>
               </div>
-              ${items}
+              <div class="group-body">
+                ${items}
+              </div>
             </div>`;
         }).join("");
       } catch (e) { box.innerHTML = '<div class="empty" style="color:var(--danger)">加载失败：' + e.message + '</div>'; }
@@ -501,6 +616,13 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
     function cssEscape(id) {
       // 用于 DOM id，替换特殊字符
       return String(id).replace(/[^a-zA-Z0-9_-]/g, "_");
+    }
+
+    // 折叠/展开模型分组
+    function toggleGroup(prefix, headEl) {
+      const group = headEl.closest(".model-group");
+      if (!group) return;
+      group.classList.toggle("collapsed");
     }
 
     // 调用测试接口，返回 { ok, latency_ms, reply, status }
@@ -514,40 +636,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       return { ok: !!data.ok, latency: data.latency_ms, reply: data.reply || "", status: data.status };
     }
 
-    // 追加一条测试日志到右侧「测试日志」卡片
-    function appendTestLog(model, result) {
-      const logBox = document.getElementById("testLog");
-      if (!logBox) return;
-      const placeholder = logBox.querySelector(".log-placeholder");
-      if (placeholder) placeholder.remove();
-      const time = new Date().toLocaleTimeString();
-      const ok = result.ok;
-      const statusText = ok ? "✓ " + result.latency + "ms" : "✗ " + (result.reply || ("HTTP " + (result.status || "?")));
-      const replyText = (result.reply || "").replace(/[\r\n]+/g, " ").slice(0, 120);
-      const div = document.createElement("div");
-      div.className = "log-item";
-      div.innerHTML = `
-        <div class="log-head">
-          <span class="log-model">${model}</span>
-          <span class="log-status ${ok ? "ok" : "err"}">${statusText}</span>
-        </div>
-        <div class="log-reply">${time}${replyText ? " · " + replyText : ""}</div>`;
-      logBox.appendChild(div);
-      logBox.scrollTop = logBox.scrollHeight;
-    }
-
-    // 清空测试日志
-    function clearTestLog() {
-      const logBox = document.getElementById("testLog");
-      if (!logBox) return;
-      logBox.innerHTML = `<div class="log-placeholder">
-        <span class="ph-ico">🪄</span>
-        <span>暂无测试记录</span>
-        <span>点击模型旁的「测试」、「测试本组」或「全部测试」开始</span>
-      </div>`;
-    }
-
-    // 更新某模型测试按钮的 loading 状态
+    // 更新某模型测试按钮的 loading 状态，并在行内右侧显示结果徽章
     function renderTestResult(model, result, running) {
       const btn = document.getElementById("btn-" + cssEscape(model));
       if (running) {
@@ -555,8 +644,15 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
         return;
       }
       if (btn) { btn.disabled = false; btn.textContent = "测试"; }
-      TEST_RESULTS[model] = { running: false };
-      appendTestLog(model, result);
+      TEST_RESULTS[model] = { running: false, result };
+      // 行内右侧更新结果徽章
+      const row = btn ? btn.closest(".model") : document.querySelector(`#models .model`);
+      if (row) {
+        const old = row.querySelector(".result");
+        if (old) old.remove();
+        const badge = resultBadge(result);
+        if (badge) btn.insertAdjacentHTML("beforebegin", badge);
+      }
     }
 
     // 测试单个模型连通性
@@ -568,8 +664,14 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       } catch (e) {
         const btn = document.getElementById("btn-" + cssEscape(model));
         if (btn) { btn.disabled = false; btn.textContent = "测试"; }
-        TEST_RESULTS[model] = { running: false };
-        appendTestLog(model, { ok: false, latency: 0, reply: "请求失败", status: 0 });
+        const result = { ok: false, latency: 0, reply: "请求失败", status: 0 };
+        TEST_RESULTS[model] = { running: false, result };
+        if (btn) {
+          const row = btn.closest(".model");
+          const old = row.querySelector(".result");
+          if (old) old.remove();
+          btn.insertAdjacentHTML("beforebegin", resultBadge(result));
+        }
       }
     }
 
@@ -599,10 +701,9 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
             result.ok ? okCount++ : failCount++;
           } catch (e) {
             failCount++;
-            const btn = document.getElementById("btn-" + cssEscape(model.id));
-            if (btn) { btn.disabled = false; btn.textContent = "测试"; }
-            TEST_RESULTS[model.id] = { running: false };
-            appendTestLog(model.id, { ok: false, latency: 0, reply: "请求失败", status: 0 });
+            const result = { ok: false, latency: 0, reply: "请求失败", status: 0 };
+            renderTestResult(model.id, result, false);
+            TEST_RESULTS[model.id] = { running: false, result };
           }
           done++;
           if (summary) summary.textContent = `进度 ${done}/${total} · 成功 ${okCount} · 失败 ${failCount}`;
@@ -685,7 +786,8 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
               <span class="sub">${u.builtin ? "https://opencode.ai (免鉴权)" : u.baseUrl}</span>
               <span class="head-actions">
                 <button class="btn gray sm" onclick="toggleUpstreamModels('${u.prefix}', this)">查看模型</button>
-                ${u.builtin ? "" : `<button class="btn danger sm" onclick="delUpstream('${u.id}')">删除</button>`}
+                ${u.builtin ? "" : `<button class="btn gray sm" onclick="openEditUpstreamModal('${u.id}')">编辑</button>
+                <button class="btn danger sm" onclick="delUpstream('${u.id}')">删除</button>`}
               </span>
             </div>
             <div class="models-box" id="models-${u.prefix}"></div>
@@ -720,6 +822,62 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       }
     }
 
+    // 切换密码输入框可见性
+    function togglePw(inputId, eyeId) {
+      const input = document.getElementById(inputId);
+      const eye = document.getElementById(eyeId);
+      if (!input || !eye) return;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      eye.textContent = show ? "🙈" : "👁";
+      eye.title = show ? "隐藏" : "显示";
+    }
+
+    // 打开编辑上游弹窗
+    async function openEditUpstreamModal(id) {
+      const up = UPSTREAMS.find((u) => u.id === id);
+      if (!up) { toast("未找到该上游"); return; }
+      document.getElementById("edit-id").value = up.id;
+      document.getElementById("edit-name").value = up.name || "";
+      document.getElementById("edit-prefix").value = up.prefix || "";
+      document.getElementById("edit-baseurl").value = up.baseUrl || "";
+      document.getElementById("edit-apikey").value = up.apiKey || "";
+      document.getElementById("edit-msg").textContent = "";
+      document.getElementById("editUpstreamModal").style.display = "grid";
+    }
+    function closeEditUpstreamModal() {
+      document.getElementById("editUpstreamModal").style.display = "none";
+    }
+    async function saveUpstream() {
+      const msg = document.getElementById("edit-msg");
+      msg.className = "msg"; msg.textContent = "";
+      const id = document.getElementById("edit-id").value;
+      const payload = {
+        name: document.getElementById("edit-name").value.trim(),
+        prefix: document.getElementById("edit-prefix").value.trim(),
+        baseUrl: document.getElementById("edit-baseurl").value.trim(),
+        apiKey: document.getElementById("edit-apikey").value.trim(),
+      };
+      if (!payload.name || !payload.prefix || !payload.baseUrl) {
+        msg.className = "msg err"; msg.textContent = "名称、前缀、Base URL 为必填项"; return;
+      }
+      msg.textContent = "保存中…";
+      try {
+        const res = await fetch("/api/upstreams/" + id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + (META?.apiKey || "") },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+        closeEditUpstreamModal();
+        loadUpstreams(); loadModels();
+        toast("已更新");
+      } catch (e) {
+        msg.className = "msg err"; msg.textContent = "更新失败：" + e.message;
+      }
+    }
+
     async function delUpstream(id) {
       const res = await fetch("/api/upstreams/" + id, {
         method: "DELETE", headers: { "Authorization": "Bearer " + (META?.apiKey || "") },
@@ -735,7 +893,9 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       try { await loadMeta(); } catch (e) { document.getElementById("status").textContent = "无法连接本服务：" + e.message; return; }
       await loadModels();
       setInterval(() => {
-        if (document.getElementById("panel-usage").classList.contains("active")) loadModels();
+        const usage = document.getElementById("panel-usage").classList.contains("active");
+        const models = document.getElementById("panel-models").classList.contains("active");
+        if (usage || models) loadModels();
       }, REFRESH_MS);
     })();
   </script>
