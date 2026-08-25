@@ -108,7 +108,7 @@ curl http://<服务器IP>:20128/v1/models -H "Authorization: Bearer sk_你的key
 
 **一键部署（方式一：网页 Deploy Button）**
 
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/你的仓库地址/oc-proxy)
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/huixiaheyu/oc-proxy)
 
 **命令行部署（方式二）：**
 
