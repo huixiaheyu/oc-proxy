@@ -464,6 +464,17 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
     // 已存在的测试状态缓存：key=模型id → { running, result }
     const TEST_RESULTS = {};
 
+    // 分组折叠状态缓存：key=前缀 → true(折叠) / false(展开)；用于轮询刷新时保留用户的展开/收缩操作
+    const GROUP_STATES = {};
+
+    // 在重建 DOM 前保存当前分组折叠状态
+    function snapshotGroupStates() {
+      document.querySelectorAll("#models .model-group").forEach((group) => {
+        const prefix = group.dataset.prefix;
+        if (prefix) GROUP_STATES[prefix] = group.classList.contains("collapsed");
+      });
+    }
+
     // 在重建 DOM 前保存当前测试状态（防止轮询刷新清掉按钮 loading 态和行内结果）
     function snapshotTestResults() {
       document.querySelectorAll("#models .model").forEach((row) => {
@@ -539,6 +550,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
         const newModels = data.data || [];
         const upstreams = data.upstreams || [];
         snapshotTestResults();
+        snapshotGroupStates();
         ALL_MODELS = newModels;
         count.textContent = "· " + ALL_MODELS.length + " 个";
         if (!ALL_MODELS.length) { box.innerHTML = '<div class="empty"><div class="big">暂无模型</div></div>'; return; }
@@ -591,8 +603,9 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
           const minLatHtml = minLat != null
             ? `<span class="group-minlat" title="该组最低延迟">⚡ ${minLat}ms</span>`
             : "";
-          // 默认展开第一个分组
-          const collapsedCls = gi === 0 ? "" : "collapsed";
+          // 折叠状态：优先恢复用户上次的展开/收缩操作；无记录时默认展开第一个分组，其余折叠
+          const collapsed = GROUP_STATES[prefix] !== undefined ? GROUP_STATES[prefix] : gi !== 0;
+          const collapsedCls = collapsed ? "collapsed" : "";
           return `
             <div class="model-group ${collapsedCls}" data-prefix="${prefix}">
               <div class="group-head" onclick="toggleGroup('${prefix.replace(/'/g, "\\'")}', this)">
@@ -623,6 +636,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       const group = headEl.closest(".model-group");
       if (!group) return;
       group.classList.toggle("collapsed");
+      GROUP_STATES[prefix] = group.classList.contains("collapsed");
     }
 
     // 调用测试接口，返回 { ok, latency_ms, reply, status }

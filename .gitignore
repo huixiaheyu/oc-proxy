@@ -6,3 +6,6 @@ data/
 .playwright-cli/
 *.png
 *.yaml
+
+# README 界面截图（需纳入版本控制）
+!docs/screenshots/*.png
