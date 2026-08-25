@@ -1,3 +1,8 @@
 node_modules/
 data/
 *.log
+
+# 测试产物
+.playwright-cli/
+*.png
+*.yaml
