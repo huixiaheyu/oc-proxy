@@ -159,6 +159,11 @@
     .upstream-row .loading, .upstream-row .err { font-size: 12.5px; padding: 8px 2px; }
     .upstream-row .loading { color: var(--muted); }
     .upstream-row .err { color: var(--danger); }
+    .upstream-row.draggable { cursor: grab; }
+    .upstream-row.draggable:active { cursor: grabbing; }
+    .upstream-row.dragging { opacity: .45; border-style: dashed; }
+    .upstream-row.drag-over { border-color: var(--accent2); box-shadow: 0 0 0 2px rgba(58,111,216,.25); }
+    .upstream-row .drag-handle { cursor: grab; color: var(--muted); font-size: 14px; user-select: none; flex-shrink: 0; }
 
     /* ===== 表单 ===== */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -825,9 +830,12 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
         UPSTREAMS = res.ok ? (await res.json()).upstreams : [];
         const builtin = { prefix: "oc", name: "OpenCode Free", builtin: true };
         const rows = [builtin, ...UPSTREAMS];
-        box.innerHTML = rows.map(u => `
-          <div class="upstream-row" id="row-${u.prefix}">
+        box.innerHTML = rows.map((u, i) => `
+          <div class="upstream-row ${u.builtin ? "" : "draggable"}" id="row-${u.prefix}"
+            data-id="${u.id || ""}" ${u.builtin ? "" : 'draggable="true"'}
+            ${u.builtin ? "" : `ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropUpstream(event)" ondragend="dragEnd(event)"`}>
             <div class="head">
+              ${u.builtin ? "" : `<span class="drag-handle" title="拖动排序">⠿</span>`}
               <span class="tag ${u.builtin ? "builtin" : ""}">${u.prefix}</span>
               <span class="name">${u.name}</span>
               <span class="sub">${u.builtin ? "https://opencode.ai (免鉴权)" : u.baseUrl}</span>
@@ -840,6 +848,56 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
             <div class="models-box" id="models-${u.prefix}"></div>
           </div>`).join("");
       } catch (e) { box.innerHTML = '<div class="empty" style="color:var(--danger)">加载失败：' + e.message + '</div>'; }
+    }
+
+    // ===== 上游拖拽排序 =====
+    let dragSourceEl = null;
+    function dragStart(e) {
+      dragSourceEl = e.currentTarget;
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", e.currentTarget.dataset.id || ""); } catch {}
+      requestAnimationFrame(() => dragSourceEl.classList.add("dragging"));
+    }
+    function dragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const row = e.currentTarget;
+      if (row === dragSourceEl || !row.dataset.id) return;
+      row.classList.add("drag-over");
+    }
+    function dragEnd(e) {
+      e.currentTarget.classList.remove("dragging", "drag-over");
+      document.querySelectorAll(".upstream-row.drag-over").forEach((el) => el.classList.remove("drag-over"));
+      dragSourceEl = null;
+    }
+    function dropUpstream(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const target = e.currentTarget;
+      target.classList.remove("drag-over");
+      const box = document.getElementById("upstreamList");
+      const rows = Array.from(box.querySelectorAll(".upstream-row[draggable]"));
+      if (!dragSourceEl || !rows.length) return;
+      const from = rows.indexOf(dragSourceEl);
+      const to = rows.indexOf(target);
+      if (from < 0 || to < 0 || from === to) return;
+      rows.splice(to, 0, rows.splice(from, 1)[0]);
+      // 更新 DOM 顺序
+      rows.forEach((r) => box.appendChild(r));
+      // 持久化：按新顺序提交全部自定义上游 id
+      const ids = rows.map((r) => r.dataset.id);
+      persistUpstreamOrder(ids);
+    }
+    async function persistUpstreamOrder(ids) {
+      try {
+        const res = await fetch("/api/upstreams/reorder", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + (META?.apiKey || "") },
+          body: JSON.stringify({ ids }),
+        });
+        if (res.ok) { loadUpstreams(); loadModels(); toast("已保存排序"); }
+        else toast("排序保存失败");
+      } catch (e) { toast("排序保存失败：" + e.message); }
     }
 
     async function addUpstream() {

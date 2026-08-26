@@ -5,7 +5,7 @@ import { Agent, setGlobalDispatcher } from "undici";
 import { registerModelsRoutes } from "./lib/models.js";
 import { registerChatRoutes } from "./lib/proxy.js";
 import { registerMessagesRoute } from "./lib/anthropic.js";
-import { listCustomUpstreams, addUpstream, updateUpstream, removeUpstream } from "./lib/upstreams.js";
+import { listCustomUpstreams, addUpstream, updateUpstream, removeUpstream, reorderUpstreams } from "./lib/upstreams.js";
 import { getApiKey, setApiKey } from "./lib/settings.js";
 import { CircuitBreaker } from "./lib/circuit-breaker.js";
 
@@ -95,6 +95,17 @@ app.post("/api/upstreams", requireAuth, (req, res) => {
     const { name, prefix, baseUrl, apiKey, modelsUrl } = req.body || {};
     const upstream = addUpstream({ name, prefix, baseUrl, apiKey, modelsUrl });
     res.json({ success: true, upstream });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// 重新排序上游（body: { ids: [id1, id2, ...] }，需含全部自定义上游 id）
+app.put("/api/upstreams/reorder", requireAuth, (req, res) => {
+  try {
+    const { ids } = req.body || {};
+    reorderUpstreams(ids);
+    res.json({ success: true });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
