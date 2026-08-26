@@ -7,6 +7,7 @@ import { registerChatRoutes } from "./lib/proxy.js";
 import { registerMessagesRoute } from "./lib/anthropic.js";
 import { listCustomUpstreams, addUpstream, updateUpstream, removeUpstream } from "./lib/upstreams.js";
 import { getApiKey, setApiKey } from "./lib/settings.js";
+import { CircuitBreaker } from "./lib/circuit-breaker.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -84,12 +85,12 @@ app.use("/v1", requireAuth);
 
 // ===== 上游管理 API =====
 // 列出所有自定义上游（不含内置 opencode）
-app.get("/api/upstreams", (req, res) => {
+app.get("/api/upstreams", requireAuth, (req, res) => {
   res.json({ upstreams: listCustomUpstreams() });
 });
 
 // 新增自定义上游
-app.post("/api/upstreams", (req, res) => {
+app.post("/api/upstreams", requireAuth, (req, res) => {
   try {
     const { name, prefix, baseUrl, apiKey, modelsUrl } = req.body || {};
     const upstream = addUpstream({ name, prefix, baseUrl, apiKey, modelsUrl });
@@ -100,7 +101,7 @@ app.post("/api/upstreams", (req, res) => {
 });
 
 // 更新自定义上游
-app.put("/api/upstreams/:id", (req, res) => {
+app.put("/api/upstreams/:id", requireAuth, (req, res) => {
   try {
     const { name, prefix, baseUrl, apiKey, modelsUrl } = req.body || {};
     const upstream = updateUpstream(req.params.id, { name, prefix, baseUrl, apiKey, modelsUrl });
@@ -112,16 +113,24 @@ app.put("/api/upstreams/:id", (req, res) => {
 });
 
 // 删除自定义上游
-app.delete("/api/upstreams/:id", (req, res) => {
+app.delete("/api/upstreams/:id", requireAuth, (req, res) => {
   const ok = removeUpstream(req.params.id);
   if (!ok) return res.status(404).json({ error: "上游不存在" });
   res.json({ success: true });
 });
 
+// 全局熔断器实例（按 upstreamId 隔离）
+const circuitBreaker = new CircuitBreaker();
+
+// 熔断状态 API（前端展示用）
+app.get("/api/circuit-breaker", requireAuth, (req, res) => {
+  res.json({ states: circuitBreaker.getAllStatus() });
+});
+
 // 注册路由
 registerModelsRoutes(app);
-registerChatRoutes(app);
-registerMessagesRoute(app);
+registerChatRoutes(app, circuitBreaker);
+registerMessagesRoute(app, circuitBreaker);
 
 app.listen(PORT, HOSTNAME, () => {
   console.log(`[oc-proxy] listening on http://${HOSTNAME}:${PORT}`);
