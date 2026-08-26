@@ -496,7 +496,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       if (!result) return "";
       const ok = result.ok;
       const cls = ok ? "ok" : "err";
-      const text = ok ? "✓ " + result.latency + "ms" : "✗";
+      const text = ok ? "✓ " + result.ttft + "ms" : "✗";
       if (ok) {
         return `<span class="result ${cls}" data-result='${JSON.stringify(result).replace(/'/g, "&#39;")}' title="${(result.reply || "成功").replace(/"/g, "&quot;")}">${text}</span>`;
       }
@@ -569,11 +569,11 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
           const info = prefixInfo[prefix] || {};
           const gname = info.name || prefix;
           const gbuiltin = !!info.builtin;
-          // 组内按测试延迟排序：有成功结果的按延迟升序在前，失败的次之，未测试的排最后
+          // 组内按 TTFT 排序：有成功结果的按 TTFT 升序在前，失败的次之，未测试的排最后
           const sortedModels = [...groups[prefix]].sort((a, b) => {
             const ra = TEST_RESULTS[a.id]?.result;
             const rb = TEST_RESULTS[b.id]?.result;
-            return (rb ? (rb.ok ? 0 : 1) : 2) - (ra ? (ra.ok ? 0 : 1) : 2) || (ra && ra.ok ? ra.latency : Infinity) - (rb && rb.ok ? rb.latency : Infinity);
+            return (rb ? (rb.ok ? 0 : 1) : 2) - (ra ? (ra.ok ? 0 : 1) : 2) || (ra && ra.ok ? ra.ttft : Infinity) - (rb && rb.ok ? rb.ttft : Infinity);
           });
           const items = sortedModels.map(m => {
             const saved = TEST_RESULTS[m.id];
@@ -594,14 +594,14 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
                 </span>
               </div>`;
           }).join("");
-          // 该组最低延迟（仅统计成功结果）
-          const okLatencies = sortedModels
+          // 该组最低 TTFT（仅统计成功结果）
+          const okTTFTs = sortedModels
             .map(m => TEST_RESULTS[m.id]?.result)
-            .filter(r => r && r.ok)
-            .map(r => r.latency);
-          const minLat = okLatencies.length ? Math.min(...okLatencies) : null;
-          const minLatHtml = minLat != null
-            ? `<span class="group-minlat" title="该组最低延迟">⚡ ${minLat}ms</span>`
+            .filter(r => r && r.ok && r.ttft >= 0)
+            .map(r => r.ttft);
+          const minTTFT = okTTFTs.length ? Math.min(...okTTFTs) : null;
+          const minLatHtml = minTTFT != null
+            ? `<span class="group-minlat" title="该组最低首 token 延迟（TTFT）">⚡ ${minTTFT}ms</span>`
             : "";
           // 折叠状态：优先恢复用户上次的展开/收缩操作；无记录时默认展开第一个分组，其余折叠
           const collapsed = GROUP_STATES[prefix] !== undefined ? GROUP_STATES[prefix] : gi !== 0;
@@ -639,7 +639,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       GROUP_STATES[prefix] = group.classList.contains("collapsed");
     }
 
-    // 调用测试接口，返回 { ok, latency_ms, reply, status }
+    // 调用测试接口，返回 { ok, ttft_ms, reply, status }（TTFT = 首 token 延迟）
     async function callTestApi(model) {
       const res = await fetch("/v1/models/test", {
         method: "POST",
@@ -647,7 +647,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
         body: JSON.stringify({ model }),
       });
       const data = await res.json();
-      return { ok: !!data.ok, latency: data.latency_ms, reply: data.reply || "", status: data.status };
+      return { ok: !!data.ok, ttft: data.ttft_ms != null ? data.ttft_ms : -1, reply: data.reply || "", status: data.status };
     }
 
     // 更新某模型测试按钮的 loading 状态，并在行内右侧显示结果徽章
@@ -678,7 +678,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       } catch (e) {
         const btn = document.getElementById("btn-" + cssEscape(model));
         if (btn) { btn.disabled = false; btn.textContent = "测试"; }
-        const result = { ok: false, latency: 0, reply: "请求失败", status: 0 };
+        const result = { ok: false, ttft: -1, reply: "请求失败", status: 0 };
         TEST_RESULTS[model] = { running: false, result };
         if (btn) {
           const row = btn.closest(".model");
@@ -715,7 +715,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
             result.ok ? okCount++ : failCount++;
           } catch (e) {
             failCount++;
-            const result = { ok: false, latency: 0, reply: "请求失败", status: 0 };
+            const result = { ok: false, ttft: -1, reply: "请求失败", status: 0 };
             renderTestResult(model.id, result, false);
             TEST_RESULTS[model.id] = { running: false, result };
           }
