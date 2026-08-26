@@ -125,7 +125,10 @@ registerMessagesRoute(app);
 
 app.listen(PORT, HOSTNAME, () => {
   console.log(`[oc-proxy] listening on http://${HOSTNAME}:${PORT}`);
-  console.log(`[oc-proxy] API Key: ${getApiKey()}`);
+  // 日志中不打印完整 API Key，仅显示前缀用于确认已配置
+  const ak = getApiKey();
+  const maskedAk = ak.length > 6 ? `${ak.slice(0, 4)}****${ak.slice(-2)}` : "****";
+  console.log(`[oc-proxy] API Key: ${maskedAk}`);
   console.log(`[oc-proxy] Models: GET /v1/models | Chat: POST /v1/chat/completions | Anthropic: POST /v1/messages`);
   console.log(`[oc-proxy] Upstreams: GET/POST /api/upstreams | DELETE /api/upstreams/:id`);
 });
