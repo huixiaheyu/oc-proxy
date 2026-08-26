@@ -52,11 +52,11 @@
 
     .panel { display: none; animation: fadeIn .25s ease; }
     .panel.active { display: block; }
-    /* 「可用模型」面板独立加宽：突破 .wrap(1120px) 上限，按视口宽度撑满并保持居中留白 */
+    /* 「可用模型」面板固定宽度：小屏撑满视口，大屏封顶 1280px 并保持居中 */
     #panel-models {
       width: calc(100vw - 40px);
-      max-width: none;
-      margin-left: calc(50% - 50vw + 20px);
+      max-width: 1280px;
+      margin-left: calc(50% - min(50vw - 20px, 640px));
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
@@ -251,12 +251,17 @@
             <div class="usage">
               <pre>模型格式：<span class="hl">前缀/模型名</span>（前缀 = 上游前缀，如 <span class="hl">oc</span>、<span class="hl">mysrv</span>）
 
+<span class="hl"># OpenAI 格式</span>
 POST <span class="hl">{baseUrl}/v1/chat/completions</span>
 Authorization: Bearer &lt;API_KEY&gt;
 { "model": "oc/deepseek-v4-flash-free",
   "messages": [...], "stream": true }
 
-# 查看可用模型（实时更新）
+<span class="hl"># Anthropic 格式</span>（Claude Code / Anthropic SDK 直接接入）
+POST <span class="hl">{baseUrl}/v1/messages</span>
+鉴权与 Base URL 相同，system / 图片 / 工具调用自动双向转换
+
+<span class="hl"># 查看可用模型</span>（实时更新）
 GET <span class="hl">{baseUrl}/v1/models</span></pre>
             </div>
           </div>
