@@ -10,6 +10,7 @@
 ## 核心特性
 
 - `POST /v1/chat/completions` —— 按模型前缀路由到对应上游（支持流式 SSE 透传）
+- `POST /v1/messages` —— **Anthropic Messages API 兼容端点**：自动把 Anthropic 协议（system 字段、content blocks、tool_use/tool_result）转换为 OpenAI 格式发给上游，响应/SSE 流再转回 Anthropic 格式，Claude Code、Anthropic SDK 等可直接接入
 - `GET /v1/models` —— 实时拉取 + 缓存的所有上游模型
 - `GET /` —— 前端页面：复制 Base URL / API Key / 模型列表 + 上游管理
 - **前缀命名空间**：每个上游一个前缀，如 `oc/deepseek-v4-flash-free`、`mysrv/gpt-4o`，避免重名
@@ -71,6 +72,21 @@ curl http://<服务器IP>:20128/v1/chat/completions \
 curl http://<服务器IP>:20128/v1/models -H "Authorization: Bearer sk_你的key"
 ```
 
+Anthropic 格式调用（Claude Code / Anthropic SDK 等，Base URL 填 `http://<服务器IP>:20128`）：
+
+```bash
+curl http://<服务器IP>:20128/v1/messages \
+  -H "Authorization: Bearer sk_你的key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "oc/mimo-v2.5-free",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "你好"}]
+  }'
+```
+
+> 支持流式（`"stream": true`）、多模态图片输入与工具调用（tool_use / tool_result 双向转换）。鉴权兼容 `x-api-key` 之外统一使用 `Authorization: Bearer`。
+
 ### 3. 添加自定义上游（中转别人的 API）
 
 打开前端页面 → **上游管理** tab → 填表：
@@ -128,7 +144,8 @@ oc-proxy/
 │   ├── upstreams.js     # 上游管理（内置 opencode + 自定义，JSON 持久化）
 │   ├── settings.js      # 运行时设置管理（网页自定义 API Key 持久化）
 │   ├── models.js        # 多上游模型实时拉取 + 缓存 + 前缀合并
-│   └── proxy.js         # /v1/chat/completions 按前缀路由直通反代
+│   ├── proxy.js         # /v1/chat/completions 按前缀路由直通反代
+│   └── anthropic.js     # /v1/messages Anthropic ↔ OpenAI 协议转换层
 ├── public/
 │   └── index.html       # 前端：复制 apikey/baseurl + 上游管理
 ├── docs/

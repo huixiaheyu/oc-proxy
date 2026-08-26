@@ -52,6 +52,12 @@
 
     .panel { display: none; animation: fadeIn .25s ease; }
     .panel.active { display: block; }
+    /* 「可用模型」面板独立加宽：突破 .wrap(1120px) 上限，按视口宽度撑满并保持居中留白 */
+    #panel-models {
+      width: calc(100vw - 40px);
+      max-width: none;
+      margin-left: calc(50% - 50vw + 20px);
+    }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
     /* ===== 卡片 ===== */
@@ -112,7 +118,7 @@
     .model-group .group-name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .model-group .group-count { font-size: 12px; color: var(--muted); flex-shrink: 0; }
     .model-group .group-ops { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-    .model-group .group-body { padding: 6px 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; }
+    .model-group .group-body { padding: 6px 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 8px; }
     .model-group.collapsed .group-body { display: none; }
     .model-group .group-minlat { font-size: 11px; color: var(--ok); background: rgba(63,185,80,.1); padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-weight: 600; }
 
@@ -569,13 +575,8 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
           const info = prefixInfo[prefix] || {};
           const gname = info.name || prefix;
           const gbuiltin = !!info.builtin;
-          // 组内按 TTFT 排序：有成功结果的按 TTFT 升序在前，失败的次之，未测试的排最后
-          const sortedModels = [...groups[prefix]].sort((a, b) => {
-            const ra = TEST_RESULTS[a.id]?.result;
-            const rb = TEST_RESULTS[b.id]?.result;
-            return (rb ? (rb.ok ? 0 : 1) : 2) - (ra ? (ra.ok ? 0 : 1) : 2) || (ra && ra.ok ? ra.ttft : Infinity) - (rb && rb.ok ? rb.ttft : Infinity);
-          });
-          const items = sortedModels.map(m => {
+          // 组内保持上游返回的原始顺序，不按测试结果动态排序
+          const items = groups[prefix].map(m => {
             const saved = TEST_RESULTS[m.id];
             const btnLabel = saved && saved.running ? '<span class="spinner"></span>' : "测试";
             const btnDisabled = saved && saved.running ? "disabled" : "";
@@ -595,7 +596,7 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
               </div>`;
           }).join("");
           // 该组最低 TTFT（仅统计成功结果）
-          const okTTFTs = sortedModels
+          const okTTFTs = groups[prefix]
             .map(m => TEST_RESULTS[m.id]?.result)
             .filter(r => r && r.ok && r.ttft >= 0)
             .map(r => r.ttft);

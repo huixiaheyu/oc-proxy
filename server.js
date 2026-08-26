@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { Agent, setGlobalDispatcher } from "undici";
 import { registerModelsRoutes } from "./lib/models.js";
 import { registerChatRoutes } from "./lib/proxy.js";
+import { registerMessagesRoute } from "./lib/anthropic.js";
 import { listCustomUpstreams, addUpstream, updateUpstream, removeUpstream } from "./lib/upstreams.js";
 import { getApiKey, setApiKey } from "./lib/settings.js";
 
@@ -120,10 +121,11 @@ app.delete("/api/upstreams/:id", (req, res) => {
 // 注册路由
 registerModelsRoutes(app);
 registerChatRoutes(app);
+registerMessagesRoute(app);
 
 app.listen(PORT, HOSTNAME, () => {
   console.log(`[oc-proxy] listening on http://${HOSTNAME}:${PORT}`);
   console.log(`[oc-proxy] API Key: ${getApiKey()}`);
-  console.log(`[oc-proxy] Models:  GET /v1/models | Chat: POST /v1/chat/completions`);
+  console.log(`[oc-proxy] Models: GET /v1/models | Chat: POST /v1/chat/completions | Anthropic: POST /v1/messages`);
   console.log(`[oc-proxy] Upstreams: GET/POST /api/upstreams | DELETE /api/upstreams/:id`);
 });
