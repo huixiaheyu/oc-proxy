@@ -650,6 +650,31 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       return { ok: !!data.ok, ttft: data.ttft_ms != null ? data.ttft_ms : -1, reply: data.reply || "", status: data.status };
     }
 
+    // 重算某分组的最低 TTFT 并更新组头徽章（仅统计成功结果）
+    function updateGroupMinTTFT(groupEl) {
+      if (!groupEl) return;
+      let minTTFT = null;
+      groupEl.querySelectorAll(".model .result").forEach((rs) => {
+        if (!rs.dataset.result) return;
+        let r;
+        try { r = JSON.parse(rs.dataset.result); } catch { return; }
+        if (r && r.ok && r.ttft >= 0) minTTFT = minTTFT == null ? r.ttft : Math.min(minTTFT, r.ttft);
+      });
+      let minEl = groupEl.querySelector(".group-ops .group-minlat");
+      if (minTTFT != null) {
+        if (!minEl) {
+          minEl = document.createElement("span");
+          minEl.className = "group-minlat";
+          const ops = groupEl.querySelector(".group-ops");
+          if (ops) ops.insertBefore(minEl, ops.firstChild);
+        }
+        minEl.title = "该组最低首 token 延迟（TTFT）";
+        minEl.textContent = `⚡ ${minTTFT}ms`;
+      } else if (minEl) {
+        minEl.remove();
+      }
+    }
+
     // 更新某模型测试按钮的 loading 状态，并在行内右侧显示结果徽章
     function renderTestResult(model, result, running) {
       const btn = document.getElementById("btn-" + cssEscape(model));
@@ -666,6 +691,8 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
         if (old) old.remove();
         const badge = resultBadge(result);
         if (badge) btn.insertAdjacentHTML("beforebegin", badge);
+        // 实时更新该分组组头的最低 TTFT（不再等 60s 轮询）
+        updateGroupMinTTFT(row.closest(".model-group"));
       }
     }
 
