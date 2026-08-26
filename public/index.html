@@ -888,7 +888,10 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
       const ids = rows.map((r) => r.dataset.id);
       persistUpstreamOrder(ids);
     }
+    let orderSaving = false;
     async function persistUpstreamOrder(ids) {
+      if (orderSaving) return; // 防止快速连拖时请求乱序到达
+      orderSaving = true;
       try {
         const res = await fetch("/api/upstreams/reorder", {
           method: "PUT",
@@ -896,8 +899,9 @@ GET <span class="hl">{baseUrl}/v1/models</span></pre>
           body: JSON.stringify({ ids }),
         });
         if (res.ok) { loadUpstreams(); loadModels(); toast("已保存排序"); }
-        else toast("排序保存失败");
-      } catch (e) { toast("排序保存失败：" + e.message); }
+        else { toast("排序保存失败"); loadUpstreams(); } // 失败回滚到服务端顺序
+      } catch (e) { toast("排序保存失败：" + e.message); loadUpstreams(); }
+      finally { orderSaving = false; }
     }
 
     async function addUpstream() {
