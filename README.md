@@ -1,165 +1,221 @@
-# OC-PROXY
+# 🔄 OC-Proxy
 
-精简的 **AI 上游中转服务**。支持两种上游：
+**免费 AI 模型的统一中转站 —— 一个服务聚合所有上游，OpenAI / Anthropic 双协议兼容。**
 
-1. **内置 OpenCode Free**（免鉴权直通 `opencode.ai`）
-2. **自定义 OpenAI 兼容 API**（网页可视化添加第三方中转站/OpenRouter/国内中转等，用自己的 baseUrl + apiKey）
+[![Node.js 18+](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://github.com/huixiaheyu/oc-proxy/pkgs/container/oc-proxy)
+[![Release](https://img.shields.io/github/v/release/huixiaheyu/oc-proxy?style=for-the-badge)](https://github.com/huixiaheyu/oc-proxy/releases)
 
-对外暴露统一 **OpenAI 兼容接口**，本地用 **baseURL + API Key + model** 即可调用，`/v1/models` **实时拉取**所有上游最新模型并缓存。
+[快速开始](#快速开始) · [为什么需要它](#为什么需要它) · [功能](#功能) · [架构](#架构) · [配置参考](#配置参考) · [对比](#与现有方案对比)
 
-## 核心特性
+---
 
-- `POST /v1/chat/completions` —— 按模型前缀路由到对应上游（支持流式 SSE 透传）
-- `POST /v1/messages` —— **Anthropic Messages API 兼容端点**：自动把 Anthropic 协议（system 字段、content blocks、tool_use/tool_result）转换为 OpenAI 格式发给上游，响应/SSE 流再转回 Anthropic 格式，Claude Code、Anthropic SDK 等可直接接入
-- `GET /v1/models` —— 实时拉取 + 缓存的所有上游模型
-- `GET /` —— 前端页面：复制 Base URL / API Key / 模型列表 + 上游管理
-- **前缀命名空间**：每个上游一个前缀，如 `oc/deepseek-v4-flash-free`、`mysrv/gpt-4o`，避免重名
-- 网页可视化添加上游（填名称、前缀、baseUrl、apiKey），JSON 持久化，支持编辑与删除
-- **网页自定义 API Key**：在「接入信息」页点「设置」即可更换对外 API Key（持久化到 `data/settings.json`，旧 Key 立即失效，需携带新 Key 鉴权）
-- **模型连通性测试（TTFT 测速）**：支持单个模型测试、「测试本组」（按上游/前缀分组批量测试）和「全部测试」；采用 **TTFT（Time To First Token，首 token 延迟）** 指标——发起 `stream:true` 请求，读到首个有效数据块即断开，更贴近真实对话的首响应体验。测试结果徽章直接显示在每行模型右侧（失败时 hover 叉号可查看详情）
-- **按速度排序**：可用模型按组折叠展示，组内已测试模型按 **TTFT** 升序排列（最快在上），组头显示该组最低 TTFT
+## 为什么需要它
 
-## 界面截图
+**Before：** 免费 AI 模型分散在不同平台，每个都要单独配置 API Key 和 Base URL，切换模型要改一堆配置。
 
-| 接入信息 | 可用模型 | 上游管理 |
-| :---: | :---: | :---: |
-| ![接入信息](docs/screenshots/接入信息.png) | ![可用模型](docs/screenshots/可用模型.png) | ![上游管理](docs/screenshots/上游管理.png) |
+**After：** 一个服务聚合所有上游，统一接口、统一 Key、网页管理，客户端只填一个地址。
 
-## 快速开始（Docker）
+| 痛点 | OC-Proxy 的解法 |
+|------|----------------|
+| 免费模型分散、需要逐个注册 | 内置 OpenCode Free，零配置直接用 |
+| 不同上游接口格式不统一 | 统一 OpenAI 兼容 + Anthropic 兼容 |
+| 切换模型要改客户端配置 | 前缀命名空间，`oc/model` 一个名字搞定 |
+| 不知道哪个模型能用 | 内置 TTFT 测试，一键批量检测连通性 |
+| 上游配置分散 | 网页可视化管理，实时增删改查 |
 
-### 1. 部署到服务器
+---
+
+## 功能
+
+- **双协议兼容** —— `POST /v1/chat/completions`（OpenAI）+ `POST /v1/messages`（Anthropic），Claude Code / Cursor / 任意 OpenAI SDK 直接接入
+- **多上游聚合** —— 内置 OpenCode Free + 无限自定义上游（中转站 / OpenRouter / 国内 API 等）
+- **前缀命名空间** —— 每个上游一个前缀，`oc/mimo-v2.5-free`、`mysrv/gpt-4o`，避免重名
+- **实时模型列表** —— `GET /v1/models` 自动拉取所有上游最新模型，10 分钟缓存
+- **TTFT 测速** —— 单模型 / 按组 / 全部测试首 token 延迟，结果行内实时显示
+- **网页管理** —— 三页签：接入信息（一键复制）、可用模型（分组折叠）、上游管理（CRUD）
+- **SSE 流式透传** —— 完整支持流式响应，背压控制，逐 token 转发
+- **Anthropic 协议转换** —— 自动处理 system、content blocks、tool_use / tool_result 双向转换，支持流式
+- **API Key 动态管理** —— 网页即时修改，持久化到磁盘，旧 Key 立即失效
+
+---
+
+## 快速开始
+
+### Docker（推荐）
 
 ```bash
-cd oc-proxy
+# 1. 启动
+docker run -d \
+  --name oc-proxy \
+  -p 20128:20128 \
+  -e API_KEY=sk_你的强密码 \
+  -v ./data:/app/data \
+  --restart unless-stopped \
+  ghcr.io/huixiaheyu/oc-proxy:latest
 
-# 先修改 docker-compose.yml 里的 API_KEY 为强密码
-vim docker-compose.yml
-
-docker compose up -d --build
+# 2. 打开网页
+# http://localhost:20128
 ```
 
-服务启动后：
+### Docker Compose
 
-- 前端页面：`http://<服务器IP>:20128/`
-- API 接口：`http://<服务器IP>:20128/v1`
+```yaml
+services:
+  oc-proxy:
+    image: ghcr.io/huixiaheyu/oc-proxy:latest
+    container_name: oc-proxy
+    restart: unless-stopped
+    ports:
+      - "20128:20128"
+    environment:
+      - API_KEY=sk_你的强密码
+    volumes:
+      - ./data:/app/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+```
 
-### 2. 本机使用
+```bash
+docker compose up -d
+```
 
-在「接入信息」页复制 **Base URL** 和 **API Key**，然后在任意支持 OpenAI 兼容接口的工具中配置：
+### 从源码运行
+
+```bash
+git clone https://github.com/huixiaheyu/oc-proxy.git && cd oc-proxy
+npm install
+npm start
+```
+
+### 客户端接入
+
+打开 `http://<服务器IP>:20128`，在「接入信息」页复制 **Base URL** 和 **API Key**：
 
 ```
 Base URL:  http://<服务器IP>:20128/v1
 API Key:   sk_你的key
-Model:     oc/deepseek-v4-flash-free   （模型带前缀，在页面实时查看）
+Model:     oc/mimo-v2.5-free
 ```
 
-命令行验证：
+### 添加自定义上游
 
-```bash
-curl http://<服务器IP>:20128/v1/chat/completions \
-  -H "Authorization: Bearer sk_你的key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "oc/mimo-v2.5-free",
-    "messages": [{"role":"user","content":"你好"}],
-    "stream": true
-  }'
+网页 → **上游管理** → 填写名称、前缀、Base URL、API Key → 保存。
+
+模型自动带前缀出现，如 `mysrv/gpt-4o`，直接调用即可。
+
+---
+
+## 架构
+
+```
+┌─────────────┐     ┌──────────────────────────────────────────────────┐
+│   Client    │────▶│                  OC-Proxy                         │
+│  (SDK/CLI)  │     │  ┌──────────┐  ┌────────┐  ┌─────────────────┐  │
+└─────────────┘     │  │ Auth +   │  │ Router │  │ Protocol        │  │
+                    │  │ API Key  │─▶│ Prefix │─▶│ Converter       │  │
+                    │  └──────────┘  └───┬────┘  └────────┬────────┘  │
+                    └────────────────────┼────────────────┼───────────┘
+                                         │                │
+                            ┌────────────▼──┐   ┌────────▼──────────┐
+                            │   Built-in    │   │   Custom          │
+                            │   OpenCode    │   │   Upstreams       │
+                            │   Free (oc/)  │   │   (mysrv/...)     │
+                            └───────────────┘   └───────────────────┘
 ```
 
-查看可用模型（实时）：
+**请求流程：** Client → 鉴权 → 解析 `前缀/模型名` → 匹配上游 → 协议转换（Anthropic↔OpenAI） → 转发 → SSE 流式透传
 
-```bash
-curl http://<服务器IP>:20128/v1/models -H "Authorization: Bearer sk_你的key"
-```
+---
 
-Anthropic 格式调用（Claude Code / Anthropic SDK 等，Base URL 填 `http://<服务器IP>:20128`）：
+## 配置参考
 
-```bash
-curl http://<服务器IP>:20128/v1/messages \
-  -H "Authorization: Bearer sk_你的key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "oc/mimo-v2.5-free",
-    "max_tokens": 1024,
-    "messages": [{"role": "user", "content": "你好"}]
-  }'
-```
+<details>
+<summary><b>环境变量</b>（点击展开）</summary>
 
-> 支持流式（`"stream": true`）、多模态图片输入与工具调用（tool_use / tool_result 双向转换）。鉴权兼容 `x-api-key` 之外统一使用 `Authorization: Bearer`。
-
-### 3. 添加自定义上游（中转别人的 API）
-
-打开前端页面 → **上游管理** tab → 填表：
-
-| 字段 | 说明 | 示例 |
-| --- | --- | --- |
-| 名称 | 给上游起个名字 | 我的中转站 |
-| 前缀 | 命名空间（唯一，调用时用） | mysrv |
-| Base URL | 上游地址 | `https://api.xxx.com/v1` |
-| API Key | 上游给你的 key | sk-xxx |
-| Models URL | 模型列表地址（可选，默认 `{baseUrl}/v1/models`） | 留空 |
-
-添加后，模型列表会多出 `mysrv/...` 前缀的模型，调用方式：`mysrv/gpt-4o`。
-
-在**上游管理**列表中可对每个自定义上游执行：
-- **查看模型**：展开查看该上游的模型列表
-- **编辑**：修改名称、前缀、Base URL、API Key（改前缀后需用新的「前缀/模型名」调用）
-- **删除**：移除该上游
-
-自定义上游配置存于 `data/upstreams.json`（Docker 卷持久化）。
-
-对应的 API：
-- `GET /api/upstreams` —— 列出所有自定义上游
-- `POST /api/upstreams` —— 新增上游
-- `PUT /api/upstreams/:id` —— 更新上游（部分字段可省略）
-- `DELETE /api/upstreams/:id` —— 删除上游
-
-## 本机直接运行（无 Docker）
-
-```bash
-cd oc-proxy
-npm install
-npm start
-# 默认 http://localhost:20128
-```
-
-## 环境变量
-
-| 变量 | 默认 | 说明 |
-| --- | --- | --- |
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
 | `PORT` | `20128` | 监听端口 |
 | `HOSTNAME` | `0.0.0.0` | 绑定地址 |
-| `API_KEY` | `sk_9router` | 对外 API Key 初始值（前端展示 / 客户端调用需带）。部署后可在网页「接入信息」页点「设置」动态修改并持久化 |
-| `ALLOW_PUBLIC_API` | `false` | 设为 `true` 跳过鉴权（仅内网调试，不建议公网） |
-| `DATA_DIR` | `./data` | 上游配置存储目录 |
-| `MODEL_CACHE_TTL_MS` | `600000` | 模型缓存时长（10 分钟） |
-| `UPSTREAM_KEEP_ALIVE_MS` | `60000` | 上游空闲连接保活时长。调长可复用 TCP/TLS 连接、避免每次请求重新握手（undici 默认仅 4s） |
+| `API_KEY` | `sk_9router` | 初始 API Key（部署后可在网页修改） |
+| `ALLOW_PUBLIC_API` | `false` | 设为 `true` 跳过鉴权（仅内网调试） |
+| `DATA_DIR` | `./data` | 上游配置和设置的存储目录 |
+| `MODEL_CACHE_TTL_MS` | `600000` | 模型列表缓存时长（默认 10 分钟） |
+| `UPSTREAM_KEEP_ALIVE_MS` | `60000` | 上游空闲连接保活时长（默认 60s） |
+
+</details>
+
+<details>
+<summary><b>API 接口</b>（点击展开）</summary>
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/health` | 服务状态检查 |
+| `POST` | `/v1/chat/completions` | OpenAI 兼容对话（支持流式） |
+| `POST` | `/v1/messages` | Anthropic Messages API（自动协议转换） |
+| `GET` | `/v1/models` | 所有可用模型（`?prefix=oc` 筛选指定上游） |
+| `POST` | `/v1/models/test` | TTFT 测速：`{ model: "oc/xxx", prompt?: "ping" }` |
+| `GET` | `/api/upstreams` | 列出自定义上游 |
+| `POST` | `/api/upstreams` | 新增上游 |
+| `PUT` | `/api/upstreams/:id` | 更新上游 |
+| `DELETE` | `/api/upstreams/:id` | 删除上游 |
+| `GET` | `/api/meta` | 前端元数据（apiKey / baseUrl） |
+| `POST` | `/api/settings/api-key` | 修改 API Key |
+
+</details>
+
+---
+
+## 与现有方案对比
+
+| 特性 | **OC-Proxy** | One API | New API |
+|------|:---:|:---:|:---:|
+| 免费模型内置 | 零配置 | 需手动添加 | 需手动添加 |
+| Anthropic 协议 | 原生支持 + 流式转换 | 不支持 | 不支持 |
+| TTFT 测速 | 单个 / 按组 / 全部 | 不支持 | 不支持 |
+| 部署依赖 | 2 个（express + undici） | Go 编译 | Go 编译 |
+| 前缀命名空间 | 支持 | 支持 | 支持 |
+| 多上游聚合 | 支持 | 支持 | 支持 |
+| Web 管理 | 支持 | 支持 | 支持 |
+
+---
 
 ## 目录结构
 
 ```
 oc-proxy/
-├── server.js            # Express 入口：鉴权 + 路由 + 上游管理 API
+├── server.js              # Express 入口：鉴权 + 路由 + 上游管理 API
 ├── lib/
-│   ├── upstreams.js     # 上游管理（内置 opencode + 自定义，JSON 持久化）
-│   ├── settings.js      # 运行时设置管理（网页自定义 API Key 持久化）
-│   ├── models.js        # 多上游模型实时拉取 + 缓存 + 前缀合并
-│   ├── proxy.js         # /v1/chat/completions 按前缀路由直通反代
-│   └── anthropic.js     # /v1/messages Anthropic ↔ OpenAI 协议转换层
+│   ├── upstreams.js       # 上游管理（内置 opencode + 自定义），JSON 持久化
+│   ├── settings.js        # 运行时设置管理（API Key 持久化）
+│   ├── models.js          # 多上游模型拉取 + 缓存 + 前缀合并
+│   ├── proxy.js           # /v1/chat/completions 按前缀路由 + TTFT 测试
+│   └── anthropic.js       # /v1/messages Anthropic ↔ OpenAI 双向协议转换
 ├── public/
-│   └── index.html       # 前端：复制 apikey/baseurl + 上游管理
-├── docs/
-│   └── screenshots/     # 界面截图（README 展示）
-├── data/                # 上游配置持久化目录
+│   └── index.html         # 前端：三页签（接入信息 / 可用模型 / 上游管理）
 ├── Dockerfile
 ├── docker-compose.yml
-└── package.json
+├── .github/workflows/
+│   └── release.yml        # 推送 tag 自动构建 Docker + 发布 Release
+└── package.json           # express 5 + undici，零其他依赖
 ```
+
+---
 
 ## 说明
 
-- **内置 opencode** 前缀固定为 `oc`，只展示免费模型（id 以 `-free` 结尾或命中白名单如 `big-pickle`）。
+- **内置 OpenCode** 前缀固定为 `oc`，仅展示免费模型（id 以 `-free` 结尾或命中白名单如 `big-pickle`）。
 - 自定义上游模型**保留原名**，带前缀调用（如 `mysrv/gpt-4o`），无免费过滤。
-- 模型列表缓存 10 分钟（可配 `MODEL_CACHE_TTL_MS`）。
 - 服务仅做**直通转发**，不记录请求内容，不落盘聊天数据（仅持久化上游配置与运行时设置）。
-- 网页修改 API Key 后，旧 Key 立即失效，新 Key 持久化于 `data/settings.json`（Docker 卷持久化）；若 `settings.json` 不存在则回退到环境变量 `API_KEY` 或默认值。
+- 网页修改 API Key 后旧 Key 立即失效，新 Key 持久化于 `data/settings.json`。
+- 上游连接使用 undici Agent 连接池，支持可配置的 keep-alive 保活。
+
+---
+
+## License
+
+[MIT](LICENSE)

@@ -1,6 +1,6 @@
 services:
   oc-proxy:
-    build: .
+    image: ghcr.io/huixiaheyu/oc-proxy:latest
     container_name: oc-proxy
     restart: unless-stopped
     ports:
