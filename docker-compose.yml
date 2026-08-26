@@ -1,6 +1,6 @@
 services:
   oc-proxy:
-    image: ghcr.io/huixiaheyu/oc-proxy:latest
+    build: .
     container_name: oc-proxy
     restart: unless-stopped
     ports:
@@ -9,7 +9,7 @@ services:
     environment:
       # 对外 API Key 初始值（前端页面会展示，客户端调用 /v1/* 需带此 key）
       # 改成你自己的强密码；部署后也可在网页「接入信息」页点「设置」动态修改并持久化
-      - API_KEY=sk_9router
+      - API_KEY=sk_oc_proxy
       # 若设为 true 则跳过 API Key 校验（仅内网/本机调试用，不建议公网开启）
       - ALLOW_PUBLIC_API=false
       # 模型列表缓存时长（毫秒），默认 10 分钟
