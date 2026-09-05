@@ -4,8 +4,8 @@
 
 [![Node.js 18+](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://github.com/huixiaheyu/oc-proxy/pkgs/container/oc-proxy)
-[![Release](https://img.shields.io/github/v/release/huixiaheyu/oc-proxy?style=for-the-badge)](https://github.com/huixiaheyu/oc-proxy/releases)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://github.com/hxhy00/oc-proxy/pkgs/container/oc-proxy)
+[![Release](https://img.shields.io/github/v/release/hxhy00/oc-proxy?style=for-the-badge)](https://github.com/hxhy00/oc-proxy/releases)
 
 [快速开始](#快速开始) · [为什么需要它](#为什么需要它) · [功能](#功能) · [架构](#架构) · [配置参考](#配置参考) · [对比](#与现有方案对比)
 
@@ -53,7 +53,7 @@ docker run -d \
   -e API_KEY=sk_oc_proxy \
   -v ./data:/app/data \
   --restart unless-stopped \
-  ghcr.io/huixiaheyu/oc-proxy:latest
+  ghcr.io/hxhy00/oc-proxy:latest
 
 # 2. 打开网页
 # http://localhost:20128
@@ -64,7 +64,7 @@ docker run -d \
 ```yaml
 services:
   oc-proxy:
-    image: ghcr.io/huixiaheyu/oc-proxy:latest
+    image: ghcr.io/hxhy00/oc-proxy:latest
     container_name: oc-proxy
     restart: unless-stopped
     ports:
@@ -87,7 +87,7 @@ docker compose up -d
 ### 从源码运行
 
 ```bash
-git clone https://github.com/huixiaheyu/oc-proxy.git && cd oc-proxy
+git clone https://github.com/hxhy00/oc-proxy.git && cd oc-proxy
 npm install
 npm start
 ```
