@@ -1,5 +1,5 @@
 # OC-PROXY：OpenCode Free 上游直通 + 自定义 OpenAI 兼容中转
-FROM node:22-alpine
+FROM node:22-slim
 
 WORKDIR /app
 
