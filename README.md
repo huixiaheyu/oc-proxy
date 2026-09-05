@@ -50,7 +50,7 @@
 docker run -d \
   --name oc-proxy \
   -p 20128:20128 \
-  -e API_KEY=sk_你的强密码 \
+  -e API_KEY=sk_oc_proxy \
   -v ./data:/app/data \
   --restart unless-stopped \
   ghcr.io/huixiaheyu/oc-proxy:latest
@@ -70,7 +70,7 @@ services:
     ports:
       - "20128:20128"
     environment:
-      - API_KEY=sk_你的强密码
+      - API_KEY=sk_oc_proxy
     volumes:
       - ./data:/app/data
     logging:
